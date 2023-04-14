@@ -6,26 +6,48 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // get all products
 router.get('/', async (req, res) => {
   // find all products
-  try { 
-    const productData = await Product.findAll({ include: ({ model: Category }, {model: Tag}) });
-    res.status(200).json(productData);
-  } catch (err) {
-     res.status(500).json(err);
+  try {
+    const productdata = await Product.findAll({
+
+      include: [{
+        model: Category,
+        attributes: ['category_name']
+      }],
+      include: [{
+        model: Tag,
+        attributes: ['tag_name']
+      }]
+    });
+    res.status(200).json(productdata);
+  }
+  catch (err) {
+    res.status(500).json(err);
   }
 });
 
 // get one product
 router.get('/:id', async (req, res) => {
   // find a single product by its `id`
-  try { 
-    const productData = await Product.findByPk(req.params.id, { include: ({ model: Category }, {model: Tag }) });
-    if (!productData) {
-    res.status(404).json({ message: "No product with this id"})
-    return;
+  try {
+    const productdata = await Product.findByPk(req.params.id,
+      {
+        include: [{
+          model: Category,
+          attributes: ['category_name']
+        }],
+        include: [{
+          model: Tag,
+          attributes: ['tag_name']
+        }]
+      })
+    if (!productdata) {
+      res.status(404).json({ message: 'No product found with that id!' });
+      return;
     }
-    res.status(200).json(productData);
-  } catch (err) {
-     res.status(500).json(err);
+    res.status(200).json(productdata);
+  }
+  catch (err) {
+    res.status(500).json(err);
   }
 });
 
@@ -107,20 +129,19 @@ router.delete('/:id', async (req, res) => {
   // delete one product by its `id` value
 
   try {
-    const productData = await Product.destroy({
-    where: {
-      id: req.params.id
-    }
+    const productdata = await Product.destroy({
+      where: {
+        id: req.params.id,
+      },
     });
-
-    if (!productData) {
-      res.status(404).json({ message: 'message: no product found with this id!' });
+    if (!productdata) {
+      res.status(404).json({ message: 'No product found with that id!' });
       return;
     }
-
-    res.status(200).json(productData);
-  } catch (err) {
-    res.status(500).json(err)
+    res.status(200).json(productdata);
+  }
+  catch (err) {
+    res.status(500).json(err);
   }
 });
 
